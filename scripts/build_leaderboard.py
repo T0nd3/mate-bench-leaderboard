@@ -39,12 +39,7 @@ def d1_query(sql: str) -> list[dict]:
         print(f"D1 error: {data}", file=sys.stderr)
         sys.exit(1)
 
-    result = data["result"][0]
-    cols   = result["results"]["columns"] if "columns" in result.get("results", {}) else []
-    rows   = result["results"]["rows"]    if "rows"    in result.get("results", {}) else []
-
-    # Cloudflare D1 REST API returns {"columns": [...], "rows": [[...], ...]}
-    return [dict(zip(cols, row)) for row in rows]
+    return data["result"][0].get("results", [])
 
 
 def main() -> None:
