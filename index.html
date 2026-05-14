@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATE Leaderboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    header h1 span { color: #58a6ff; }
+    header p { margin-top: 0.4rem; color: #8b949e; font-size: 0.9rem; }
+    header a { color: #58a6ff; text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .meta-item { font-size: 0.85rem; color: #8b949e; }
+    .meta-item strong { color: #e6edf3; }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 0.3rem 0.85rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+    .filter-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    thead th {
+      background: #161b22;
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      font-weight: 600;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { color: #e6edf3; }
+    thead th.sort-asc::after  { content: " \25B2"; font-size: 0.7rem; }
+    thead th.sort-desc::after { content: " \25BC"; font-size: 0.7rem; }
+
+    tbody tr { border-bottom: 1px solid #21262d; transition: background 0.1s; }
+    tbody tr:hover { background: #161b22; }
+    tbody td { padding: 0.6rem 0.85rem; }
+
+    .rank { font-weight: 700; color: #8b949e; width: 2rem; }
+    .rank-1 { color: #ffd700; }
+    .rank-2 { color: #c0c0c0; }
+    .rank-3 { color: #cd7f32; }
+
+    .tps { font-weight: 700; font-size: 1rem; color: #3fb950; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.3rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-amd    { background: #3d1a1a; color: #f78166; }
+    .badge-nvidia { background: #1a2b1a; color: #3fb950; }
+    .badge-intel  { background: #1a1f3d; color: #58a6ff; }
+    .badge-cpu    { background: #2d2d2d; color: #8b949e; }
+
+    .badge-quick    { background: #1f3a1f; color: #56d364; }
+    .badge-standard { background: #1a2a3d; color: #79c0ff; }
+
+    .throttle-warn { color: #f0883e; font-size: 0.75rem; }
+
+    .empty {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: #8b949e;
+    }
+    .empty p { margin-top: 0.5rem; font-size: 0.9rem; }
+
+    .loading { text-align: center; padding: 4rem; color: #8b949e; }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #21262d;
+      font-size: 0.8rem;
+      color: #8b949e;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    footer a { color: #58a6ff; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>MATE <span>Leaderboard</span></h1>
+    <p>
+      Model AI Throughput Evaluator &mdash; reproducible LLM inference benchmarks.
+      <a href="https://github.com/T0nd3/mate-bench" target="_blank">mate-bench on GitHub</a>
+    </p>
+  </header>
+
+  <div class="meta">
+    <div class="meta-item">Total submissions: <strong id="total">-</strong></div>
+    <div class="meta-item">Updated: <strong id="updated">-</strong></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-profile="all">All profiles</button>
+    <button class="filter-btn" data-profile="quick">quick</button>
+    <button class="filter-btn" data-profile="standard">standard</button>
+  </div>
+
+  <div class="table-wrap">
+    <div id="loading" class="loading">Loading...</div>
+    <div id="empty" class="empty" style="display:none">
+      <strong>No results yet</strong>
+      <p>Be the first! Run <code>mate run llm --profile quick</code> and submit.</p>
+    </div>
+    <table id="table" style="display:none">
+      <thead>
+        <tr>
+          <th class="rank-col" data-col="rank">#</th>
+          <th data-col="gpu_name">GPU</th>
+          <th data-col="vram_gb">VRAM</th>
+          <th data-col="profile">Profile</th>
+          <th data-col="model_name">Model</th>
+          <th data-col="tokens_per_second">Tokens/s</th>
+          <th data-col="runtime">Runtime</th>
+          <th data-col="submission_count">Runs</th>
+          <th data-col="last_submitted_at">Last submitted</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <a href="https://github.com/T0nd3/mate-bench" target="_blank">mate-bench</a>
+    <a href="https://github.com/T0nd3/mate-bench-leaderboard" target="_blank">leaderboard source</a>
+    <span>MIT License &mdash; results are community-submitted</span>
+  </footer>
+</div>
+
+<script>
+let allEntries = [];
+let activeProfile = "all";
+let sortCol = "tokens_per_second";
+let sortDir = "desc";
+
+async function init() {
+  try {
+    const res = await fetch("leaderboard.json?_=" + Date.now());
+    const data = await res.json();
+
+    document.getElementById("total").textContent = data.total_submissions ?? 0;
+    document.getElementById("updated").textContent = data.updated_at
+      ? new Date(data.updated_at).toLocaleString()
+      : "never";
+
+    allEntries = data.entries ?? [];
+    document.getElementById("loading").style.display = "none";
+    render();
+  } catch (e) {
+    document.getElementById("loading").textContent = "Failed to load leaderboard data.";
+  }
+}
+
+function render() {
+  const filtered = activeProfile === "all"
+    ? allEntries
+    : allEntries.filter(e => e.profile === activeProfile);
+
+  const sorted = [...filtered].sort((a, b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (typeof av === "string") av = av.toLowerCase();
+    if (typeof bv === "string") bv = bv.toLowerCase();
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (av < bv) return sortDir === "asc" ? -1 : 1;
+    if (av > bv) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const tbody = document.getElementById("tbody");
+  const table = document.getElementById("table");
+  const empty = document.getElementById("empty");
+
+  if (sorted.length === 0) {
+    table.style.display = "none";
+    empty.style.display = "";
+    return;
+  }
+
+  empty.style.display = "none";
+  table.style.display = "";
+
+  tbody.innerHTML = sorted.map((e, i) => {
+    const rank = i + 1;
+    const rankClass = rank <= 3 ? ` rank-${rank}` : "";
+    const vendor = (e.gpu_vendor || "cpu").toLowerCase();
+    const tps = e.tokens_per_second != null ? e.tokens_per_second.toFixed(1) : "-";
+    const vram = e.vram_gb != null ? e.vram_gb.toFixed(0) + " GB" : "-";
+    const date = e.last_submitted_at ? new Date(e.last_submitted_at).toLocaleDateString() : "-";
+    return `<tr>
+      <td class="rank${rankClass}">${rank}</td>
+      <td>
+        <span class="badge badge-${vendor}">${vendor.toUpperCase()}</span>
+        ${escHtml(e.gpu_name ?? "-")}
+      </td>
+      <td>${vram}</td>
+      <td><span class="badge badge-${e.profile}">${escHtml(e.profile ?? "-")}</span></td>
+      <td>${escHtml(e.model_name ?? "-")}</td>
+      <td class="tps">${tps}</td>
+      <td>${escHtml(e.runtime ?? "-")}</td>
+      <td>${e.submission_count ?? 1}</td>
+      <td>${date}</td>
+    </tr>`;
+  }).join("");
+
+  // update sort indicators
+  document.querySelectorAll("thead th").forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    if (th.dataset.col === sortCol) {
+      th.classList.add(sortDir === "asc" ? "sort-asc" : "sort-desc");
+    }
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeProfile = btn.dataset.profile;
+    render();
+  });
+});
+
+document.querySelectorAll("thead th[data-col]").forEach(th => {
+  th.addEventListener("click", () => {
+    if (sortCol === th.dataset.col) {
+      sortDir = sortDir === "desc" ? "asc" : "desc";
+    } else {
+      sortCol = th.dataset.col;
+      sortDir = th.dataset.col === "tokens_per_second" ? "desc" : "asc";
+    }
+    render();
+  });
+});
+
+init();
+</script>
+</body>
+</html>
