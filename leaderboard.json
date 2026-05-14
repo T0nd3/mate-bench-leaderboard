@@ -1,5 +1,18 @@
 {
-  "updated_at": "2026-05-14T21:38:02.990857+00:00",
-  "total_submissions": 0,
-  "entries": []
+  "updated_at": "2026-05-14T22:47:49.744739+00:00",
+  "total_submissions": 1,
+  "entries": [
+    {
+      "gpu_name": "unknown",
+      "gpu_chip": "unknown",
+      "gpu_vendor": "cpu",
+      "vram_gb": 0,
+      "profile": "quick",
+      "model_name": "llama3.2:latest",
+      "runtime": "cpu",
+      "tokens_per_second": 204.78144163661352,
+      "submission_count": 1,
+      "last_submitted_at": "2026-05-14T21:12:55.170632+00:00"
+    }
+  ]
 }
