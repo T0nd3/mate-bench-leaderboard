@@ -25,87 +25,106 @@
     header a:hover { text-decoration: underline; }
 
     .meta {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
+      display: flex; align-items: center; gap: 1.5rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
     }
     .meta-item { font-size: 0.85rem; color: #8b949e; }
     .meta-item strong { color: #e6edf3; }
 
     /* ── Tabs ── */
     .tabs {
-      display: flex;
-      gap: 0;
+      display: flex; gap: 0;
       margin-bottom: 1.5rem;
       border-bottom: 1px solid #30363d;
     }
     .tab-btn {
-      background: none;
-      border: none;
+      background: none; border: none;
       border-bottom: 2px solid transparent;
       color: #8b949e;
       padding: 0.6rem 1.25rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: -1px;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; margin-bottom: -1px;
       transition: color 0.15s, border-color 0.15s;
     }
     .tab-btn:hover { color: #e6edf3; }
     .tab-btn.active { color: #58a6ff; border-bottom-color: #58a6ff; }
-    .tab-hint {
-      font-size: 0.75rem;
-      color: #8b949e;
-      font-weight: 400;
-      margin-left: 0.4rem;
-    }
+    .tab-hint { font-size: 0.75rem; color: #8b949e; font-weight: 400; margin-left: 0.4rem; }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
     /* ── Filters ── */
     .filters {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
+      display: flex; gap: 0.5rem;
+      margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
     }
     .filter-label { font-size: 0.8rem; color: #8b949e; margin-right: 0.25rem; }
     .filter-btn {
-      background: #21262d;
-      border: 1px solid #30363d;
-      color: #8b949e;
-      padding: 0.3rem 0.85rem;
-      border-radius: 2rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.15s;
-      white-space: nowrap;
+      background: #21262d; border: 1px solid #30363d;
+      color: #8b949e; padding: 0.3rem 0.85rem;
+      border-radius: 2rem; cursor: pointer;
+      font-size: 0.8rem; transition: all 0.15s; white-space: nowrap;
     }
     .filter-btn:hover { border-color: #58a6ff; color: #58a6ff; }
     .filter-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
 
+    /* ── Chart ── */
+    .chart-section {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .chart-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 0.85rem;
+    }
+    .chart-title {
+      font-size: 0.72rem; font-weight: 600;
+      color: #8b949e; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .chart-subtitle { font-size: 0.72rem; color: #484f58; }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 5rem;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 0.28rem;
+    }
+    .chart-label {
+      font-size: 0.75rem; color: #c9d1d9;
+      text-align: right;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .chart-bar-track {
+      height: 16px; overflow: hidden; border-radius: 2px;
+    }
+    .chart-bar {
+      height: 16px; border-radius: 2px;
+      transition: width 0.35s cubic-bezier(.4,0,.2,1);
+      min-width: 3px;
+    }
+    .chart-bar-nvidia { background: linear-gradient(90deg, #166534, #22c55e); }
+    .chart-bar-amd    { background: linear-gradient(90deg, #7f1d1d, #ef4444); }
+    .chart-bar-intel  { background: linear-gradient(90deg, #1e3a5f, #3b82f6); }
+    .chart-bar-cpu    { background: linear-gradient(90deg, #374151, #9ca3af); }
+
+    .chart-value {
+      font-size: 0.75rem; color: #8b949e;
+      white-space: nowrap; text-align: left;
+    }
+    .chart-value strong { color: #e6edf3; font-weight: 600; }
+
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
     thead th {
-      background: #161b22;
-      padding: 0.65rem 0.85rem;
-      text-align: left;
-      font-weight: 600;
-      color: #8b949e;
+      background: #161b22; padding: 0.65rem 0.85rem;
+      text-align: left; font-weight: 600; color: #8b949e;
       border-bottom: 1px solid #30363d;
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
+      white-space: nowrap; cursor: pointer; user-select: none;
     }
     thead th:hover { color: #e6edf3; }
     thead th.sort-asc::after  { content: " \25B2"; font-size: 0.7rem; }
@@ -115,7 +134,7 @@
     tbody tr:hover { background: #161b22; }
     tbody td { padding: 0.6rem 0.85rem; }
 
-    .rank { font-weight: 700; color: #8b949e; width: 2rem; }
+    .rank { font-weight: 700; color: #8b949e; }
     .rank-1 { color: #ffd700; }
     .rank-2 { color: #c0c0c0; }
     .rank-3 { color: #cd7f32; }
@@ -123,25 +142,19 @@
     .tps { font-weight: 700; font-size: 1rem; color: #3fb950; }
 
     .badge {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border-radius: 0.3rem;
-      font-size: 0.75rem;
-      font-weight: 600;
+      display: inline-block; padding: 0.15rem 0.5rem;
+      border-radius: 0.3rem; font-size: 0.75rem; font-weight: 600;
     }
     .badge-amd    { background: #3d1a1a; color: #f78166; }
     .badge-nvidia { background: #1a2b1a; color: #3fb950; }
     .badge-intel  { background: #1a1f3d; color: #58a6ff; }
     .badge-cpu    { background: #2d2d2d; color: #8b949e; }
-
     .badge-quick    { background: #1f3a1f; color: #56d364; }
     .badge-standard { background: #1a2a3d; color: #79c0ff; }
     .badge-full     { background: #2d1a3d; color: #c9a0ff; }
 
     .empty {
-      text-align: center;
-      padding: 4rem 1rem;
-      color: #8b949e;
+      text-align: center; padding: 4rem 1rem; color: #8b949e;
     }
     .empty p { margin-top: 0.5rem; font-size: 0.9rem; }
     .empty code { background: #161b22; padding: 0.15rem 0.4rem; border-radius: 0.25rem; }
@@ -149,14 +162,10 @@
     .loading { text-align: center; padding: 4rem; color: #8b949e; }
 
     footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
+      margin-top: 3rem; padding-top: 1.5rem;
       border-top: 1px solid #21262d;
-      font-size: 0.8rem;
-      color: #8b949e;
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
+      font-size: 0.8rem; color: #8b949e;
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
     }
     footer a { color: #58a6ff; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
@@ -200,6 +209,15 @@
         <button class="filter-btn" data-profile="standard">standard</button>
         <button class="filter-btn" data-profile="full">full</button>
       </div>
+
+      <div class="chart-section" id="closed-chart-section" style="display:none">
+        <div class="chart-header">
+          <span class="chart-title">Tokens / second</span>
+          <span class="chart-subtitle" id="closed-chart-subtitle"></span>
+        </div>
+        <div id="closed-chart-rows"></div>
+      </div>
+
       <div class="table-wrap">
         <div id="closed-empty" class="empty" style="display:none">
           <strong>No closed results yet</strong>
@@ -228,7 +246,6 @@
     <div class="tab-panel" id="tab-open">
       <div class="filters" id="open-model-filters">
         <span class="filter-label">Model:</span>
-        <!-- populated dynamically -->
       </div>
       <div class="filters" id="open-profile-filters">
         <span class="filter-label">Profile:</span>
@@ -236,6 +253,15 @@
         <button class="filter-btn" data-profile="quick">quick</button>
         <button class="filter-btn" data-profile="standard">standard</button>
       </div>
+
+      <div class="chart-section" id="open-chart-section" style="display:none">
+        <div class="chart-header">
+          <span class="chart-title">Tokens / second</span>
+          <span class="chart-subtitle" id="open-chart-subtitle"></span>
+        </div>
+        <div id="open-chart-rows"></div>
+      </div>
+
       <div class="table-wrap">
         <div id="open-empty" class="empty" style="display:none">
           <strong>No open results yet</strong>
@@ -274,14 +300,72 @@
 const state = {
   closed: { entries: [], profile: "all", sortCol: "tokens_per_second", sortDir: "desc" },
   open:   { entries: [], profile: "all", model: "all", sortCol: "tokens_per_second", sortDir: "desc" },
-  activeTab: "closed",
 };
+
+const CHART_MAX_BARS = 12;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function esc(s) {
   return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
+function sortEntries(entries, col, dir) {
+  return [...entries].sort((a, b) => {
+    let av = a[col], bv = b[col];
+    if (typeof av === "string") av = av.toLowerCase();
+    if (typeof bv === "string") bv = bv.toLowerCase();
+    if (av == null) return 1; if (bv == null) return -1;
+    if (av < bv) return dir === "asc" ? -1 : 1;
+    if (av > bv) return dir === "asc" ? 1 : -1;
+    return 0;
+  });
+}
+
+function updateSortIndicators(tableId, col, dir) {
+  document.querySelectorAll(`#${tableId} thead th`).forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    if (th.dataset.col === col) th.classList.add(dir === "asc" ? "sort-asc" : "sort-desc");
+  });
+}
+
+// ── Chart rendering ────────────────────────────────────────────────────────
+function renderChart(containerId, sectionId, subtitleId, entries, subtitle) {
+  const section  = document.getElementById(sectionId);
+  const rowsEl   = document.getElementById(containerId);
+  const subtitleEl = document.getElementById(subtitleId);
+
+  // Always sort chart by tokens/sec desc, independent of table sort
+  const chartData = [...entries]
+    .filter(e => e.tokens_per_second != null)
+    .sort((a, b) => b.tokens_per_second - a.tokens_per_second)
+    .slice(0, CHART_MAX_BARS);
+
+  if (chartData.length < 2) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "";
+  subtitleEl.textContent = subtitle;
+
+  const max = chartData[0].tokens_per_second;
+
+  rowsEl.innerHTML = chartData.map(e => {
+    const vendor    = (e.gpu_vendor || "cpu").toLowerCase();
+    const pct       = max > 0 ? (e.tokens_per_second / max * 100).toFixed(1) : 0;
+    const label     = e.gpu_name ?? "-";
+    const tps       = e.tokens_per_second.toFixed(1);
+    return `<div class="chart-row">
+      <div class="chart-label" title="${esc(label)}">${esc(label)}</div>
+      <div class="chart-bar-track">
+        <div class="chart-bar chart-bar-${esc(vendor)}" style="width:${pct}%"></div>
+      </div>
+      <span class="chart-value"><strong>${esc(tps)}</strong> t/s</span>
+    </div>`;
+  }).join("");
+}
+
+// ── Table row builder ──────────────────────────────────────────────────────
 function gpuRow(e, rank, extraCols) {
   const rankClass = rank <= 3 ? ` rank-${rank}` : "";
   const vendor = (e.gpu_vendor || "cpu").toLowerCase();
@@ -300,31 +384,15 @@ function gpuRow(e, rank, extraCols) {
   </tr>`;
 }
 
-function sortEntries(entries, col, dir) {
-  return [...entries].sort((a, b) => {
-    let av = a[col], bv = b[col];
-    if (typeof av === "string") av = av.toLowerCase();
-    if (typeof bv === "string") bv = bv.toLowerCase();
-    if (av == null) return 1;
-    if (bv == null) return -1;
-    if (av < bv) return dir === "asc" ? -1 : 1;
-    if (av > bv) return dir === "asc" ? 1 : -1;
-    return 0;
-  });
-}
-
-function updateSortIndicators(tableId, col, dir) {
-  document.querySelectorAll(`#${tableId} thead th`).forEach(th => {
-    th.classList.remove("sort-asc", "sort-desc");
-    if (th.dataset.col === col) th.classList.add(dir === "asc" ? "sort-asc" : "sort-desc");
-  });
-}
-
 // ── Render closed ──────────────────────────────────────────────────────────
 function renderClosed() {
   const s = state.closed;
-  let filtered = s.profile === "all" ? s.entries : s.entries.filter(e => e.profile === s.profile);
-  const sorted = sortEntries(filtered, s.sortCol, s.sortDir);
+  const filtered = s.profile === "all" ? s.entries : s.entries.filter(e => e.profile === s.profile);
+  const sorted   = sortEntries(filtered, s.sortCol, s.sortDir);
+
+  const profileLabel = s.profile === "all" ? "all profiles" : `profile: ${s.profile}`;
+  renderChart("closed-chart-rows", "closed-chart-section", "closed-chart-subtitle",
+    filtered, `top ${Math.min(filtered.length, CHART_MAX_BARS)} · ${profileLabel}`);
 
   const table = document.getElementById("closed-table");
   const empty = document.getElementById("closed-empty");
@@ -350,6 +418,15 @@ function renderOpen() {
   if (s.profile !== "all") filtered = filtered.filter(e => e.profile    === s.profile);
   const sorted = sortEntries(filtered, s.sortCol, s.sortDir);
 
+  // Chart only when a specific model is selected — otherwise multi-model bars are misleading
+  if (s.model !== "all") {
+    const profileLabel = s.profile === "all" ? "all profiles" : `profile: ${s.profile}`;
+    renderChart("open-chart-rows", "open-chart-section", "open-chart-subtitle",
+      filtered, `${s.model} · ${profileLabel}`);
+  } else {
+    document.getElementById("open-chart-section").style.display = "none";
+  }
+
   const table = document.getElementById("open-table");
   const empty = document.getElementById("open-empty");
   const tbody = document.getElementById("open-tbody");
@@ -366,11 +443,10 @@ function renderOpen() {
   updateSortIndicators("open-table", s.sortCol, s.sortDir);
 }
 
-// ── Build model filter pills for open tab ─────────────────────────────────
+// ── Model filter pills (open tab) ──────────────────────────────────────────
 function buildModelFilters(entries) {
   const models = [...new Set(entries.map(e => e.model_name).filter(Boolean))].sort();
   const container = document.getElementById("open-model-filters");
-  // keep label, rebuild buttons
   const label = container.querySelector(".filter-label");
   container.innerHTML = "";
   container.appendChild(label);
@@ -409,7 +485,6 @@ async function init() {
     document.getElementById("updated").textContent = data.updated_at
       ? new Date(data.updated_at).toLocaleString() : "never";
 
-    // Support both old (entries) and new (closed_entries) format
     state.closed.entries = data.closed_entries ?? data.entries ?? [];
     state.open.entries   = data.open_entries   ?? [];
 
@@ -431,7 +506,6 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
-    state.activeTab = btn.dataset.tab;
   });
 });
 
