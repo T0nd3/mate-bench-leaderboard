@@ -43,8 +43,8 @@ def d1_query(sql: str) -> list[dict]:
 
 
 def main() -> None:
-    # Best result per (gpu_chip, profile, model_name), throttled excluded
-    entries = d1_query("""
+    # ── closed mode: best result per (gpu_chip, profile, model_name) ──────────
+    closed_entries = d1_query("""
         SELECT
             gpu_name,
             gpu_chip,
@@ -59,9 +59,32 @@ def main() -> None:
         FROM submissions
         WHERE tokens_per_second IS NOT NULL
           AND throttling_detected = 0
+          AND mode = 'closed'
         GROUP BY gpu_chip, profile, model_name
         ORDER BY tokens_per_second DESC
         LIMIT 500
+    """)
+
+    # ── open mode: best result per (gpu_chip, model_name, profile) ────────────
+    open_entries = d1_query("""
+        SELECT
+            gpu_name,
+            gpu_chip,
+            gpu_vendor,
+            vram_gb,
+            profile,
+            model_name,
+            runtime,
+            MAX(tokens_per_second) AS tokens_per_second,
+            COUNT(*)               AS submission_count,
+            MAX(submitted_at)      AS last_submitted_at
+        FROM submissions
+        WHERE tokens_per_second IS NOT NULL
+          AND throttling_detected = 0
+          AND mode = 'open'
+        GROUP BY gpu_chip, model_name, profile
+        ORDER BY model_name ASC, tokens_per_second DESC
+        LIMIT 1000
     """)
 
     totals = d1_query("SELECT COUNT(*) AS n FROM submissions")
@@ -70,14 +93,18 @@ def main() -> None:
     out = {
         "updated_at":        datetime.now(timezone.utc).isoformat(),
         "total_submissions": total,
-        "entries":           entries,
+        "closed_entries":    closed_entries,
+        "open_entries":      open_entries,
     }
 
     with open("leaderboard.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
         f.write("\n")
 
-    print(f"Written {len(entries)} entries, {total} total submissions.")
+    print(
+        f"Written {len(closed_entries)} closed + {len(open_entries)} open entries, "
+        f"{total} total submissions."
+    )
 
 
 if __name__ == "__main__":

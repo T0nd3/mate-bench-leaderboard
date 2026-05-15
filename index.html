@@ -28,18 +28,52 @@
       display: flex;
       align-items: center;
       gap: 1.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
       flex-wrap: wrap;
     }
     .meta-item { font-size: 0.85rem; color: #8b949e; }
     .meta-item strong { color: #e6edf3; }
 
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #30363d;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #8b949e;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #e6edf3; }
+    .tab-btn.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+    .tab-hint {
+      font-size: 0.75rem;
+      color: #8b949e;
+      font-weight: 400;
+      margin-left: 0.4rem;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Filters ── */
     .filters {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       flex-wrap: wrap;
+      align-items: center;
     }
+    .filter-label { font-size: 0.8rem; color: #8b949e; margin-right: 0.25rem; }
     .filter-btn {
       background: #21262d;
       border: 1px solid #30363d;
@@ -47,12 +81,14 @@
       padding: 0.3rem 0.85rem;
       border-radius: 2rem;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       transition: all 0.15s;
+      white-space: nowrap;
     }
     .filter-btn:hover { border-color: #58a6ff; color: #58a6ff; }
     .filter-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
 
+    /* ── Table ── */
     .table-wrap { overflow-x: auto; }
 
     table {
@@ -100,8 +136,7 @@
 
     .badge-quick    { background: #1f3a1f; color: #56d364; }
     .badge-standard { background: #1a2a3d; color: #79c0ff; }
-
-    .throttle-warn { color: #f0883e; font-size: 0.75rem; }
+    .badge-full     { background: #2d1a3d; color: #c9a0ff; }
 
     .empty {
       text-align: center;
@@ -109,6 +144,7 @@
       color: #8b949e;
     }
     .empty p { margin-top: 0.5rem; font-size: 0.9rem; }
+    .empty code { background: #161b22; padding: 0.15rem 0.4rem; border-radius: 0.25rem; }
 
     .loading { text-align: center; padding: 4rem; color: #8b949e; }
 
@@ -141,35 +177,90 @@
     <div class="meta-item">Updated: <strong id="updated">-</strong></div>
   </div>
 
-  <div class="filters">
-    <button class="filter-btn active" data-profile="all">All profiles</button>
-    <button class="filter-btn" data-profile="quick">quick</button>
-    <button class="filter-btn" data-profile="standard">standard</button>
-  </div>
+  <div id="loading" class="loading">Loading…</div>
 
-  <div class="table-wrap">
-    <div id="loading" class="loading">Loading...</div>
-    <div id="empty" class="empty" style="display:none">
-      <strong>No results yet</strong>
-      <p>Be the first! Run <code>mate run llm --profile quick</code> and submit.</p>
+  <div id="content" style="display:none">
+
+    <!-- ── Tabs ── -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="closed">
+        Closed<span class="tab-hint">reproducible reference runs</span>
+      </button>
+      <button class="tab-btn" data-tab="open">
+        Open<span class="tab-hint">user-chosen models</span>
+      </button>
     </div>
-    <table id="table" style="display:none">
-      <thead>
-        <tr>
-          <th class="rank-col" data-col="rank">#</th>
-          <th data-col="gpu_name">GPU</th>
-          <th data-col="vram_gb">VRAM</th>
-          <th data-col="profile">Profile</th>
-          <th data-col="model_name">Model</th>
-          <th data-col="tokens_per_second">Tokens/s</th>
-          <th data-col="runtime">Runtime</th>
-          <th data-col="submission_count">Runs</th>
-          <th data-col="last_submitted_at">Last submitted</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+
+    <!-- ── Closed tab ── -->
+    <div class="tab-panel active" id="tab-closed">
+      <div class="filters" id="closed-profile-filters">
+        <span class="filter-label">Profile:</span>
+        <button class="filter-btn active" data-profile="all">All</button>
+        <button class="filter-btn" data-profile="quick">quick</button>
+        <button class="filter-btn" data-profile="standard">standard</button>
+        <button class="filter-btn" data-profile="full">full</button>
+      </div>
+      <div class="table-wrap">
+        <div id="closed-empty" class="empty" style="display:none">
+          <strong>No closed results yet</strong>
+          <p>Run <code>mate run llm --profile standard</code> and submit.</p>
+        </div>
+        <table id="closed-table" style="display:none">
+          <thead>
+            <tr>
+              <th data-col="rank">#</th>
+              <th data-col="gpu_name">GPU</th>
+              <th data-col="vram_gb">VRAM</th>
+              <th data-col="profile">Profile</th>
+              <th data-col="model_name">Model</th>
+              <th data-col="tokens_per_second">Tokens/s</th>
+              <th data-col="runtime">Runtime</th>
+              <th data-col="submission_count">Runs</th>
+              <th data-col="last_submitted_at">Last submitted</th>
+            </tr>
+          </thead>
+          <tbody id="closed-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Open tab ── -->
+    <div class="tab-panel" id="tab-open">
+      <div class="filters" id="open-model-filters">
+        <span class="filter-label">Model:</span>
+        <!-- populated dynamically -->
+      </div>
+      <div class="filters" id="open-profile-filters">
+        <span class="filter-label">Profile:</span>
+        <button class="filter-btn active" data-profile="all">All</button>
+        <button class="filter-btn" data-profile="quick">quick</button>
+        <button class="filter-btn" data-profile="standard">standard</button>
+      </div>
+      <div class="table-wrap">
+        <div id="open-empty" class="empty" style="display:none">
+          <strong>No open results yet</strong>
+          <p>Run <code>mate run llm --mode open --model your-model --profile standard</code> and submit.</p>
+        </div>
+        <table id="open-table" style="display:none">
+          <thead>
+            <tr>
+              <th data-col="rank">#</th>
+              <th data-col="gpu_name">GPU</th>
+              <th data-col="vram_gb">VRAM</th>
+              <th data-col="model_name">Model</th>
+              <th data-col="profile">Profile</th>
+              <th data-col="tokens_per_second">Tokens/s</th>
+              <th data-col="runtime">Runtime</th>
+              <th data-col="submission_count">Runs</th>
+              <th data-col="last_submitted_at">Last submitted</th>
+            </tr>
+          </thead>
+          <tbody id="open-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
 
   <footer>
     <a href="https://github.com/T0nd3/mate-bench" target="_blank">mate-bench</a>
@@ -179,112 +270,207 @@
 </div>
 
 <script>
-let allEntries = [];
-let activeProfile = "all";
-let sortCol = "tokens_per_second";
-let sortDir = "desc";
+// ── State ──────────────────────────────────────────────────────────────────
+const state = {
+  closed: { entries: [], profile: "all", sortCol: "tokens_per_second", sortDir: "desc" },
+  open:   { entries: [], profile: "all", model: "all", sortCol: "tokens_per_second", sortDir: "desc" },
+  activeTab: "closed",
+};
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function gpuRow(e, rank, extraCols) {
+  const rankClass = rank <= 3 ? ` rank-${rank}` : "";
+  const vendor = (e.gpu_vendor || "cpu").toLowerCase();
+  const tps    = e.tokens_per_second != null ? e.tokens_per_second.toFixed(1) : "-";
+  const vram   = e.vram_gb != null ? e.vram_gb.toFixed(0) + " GB" : "-";
+  const date   = e.last_submitted_at ? new Date(e.last_submitted_at).toLocaleDateString() : "-";
+  return `<tr>
+    <td class="rank${rankClass}">${rank}</td>
+    <td><span class="badge badge-${esc(vendor)}">${esc(vendor.toUpperCase())}</span> ${esc(e.gpu_name ?? "-")}</td>
+    <td>${esc(vram)}</td>
+    ${extraCols(e)}
+    <td class="tps">${esc(tps)}</td>
+    <td>${esc(e.runtime ?? "-")}</td>
+    <td>${e.submission_count ?? 1}</td>
+    <td>${esc(date)}</td>
+  </tr>`;
+}
+
+function sortEntries(entries, col, dir) {
+  return [...entries].sort((a, b) => {
+    let av = a[col], bv = b[col];
+    if (typeof av === "string") av = av.toLowerCase();
+    if (typeof bv === "string") bv = bv.toLowerCase();
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (av < bv) return dir === "asc" ? -1 : 1;
+    if (av > bv) return dir === "asc" ? 1 : -1;
+    return 0;
+  });
+}
+
+function updateSortIndicators(tableId, col, dir) {
+  document.querySelectorAll(`#${tableId} thead th`).forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    if (th.dataset.col === col) th.classList.add(dir === "asc" ? "sort-asc" : "sort-desc");
+  });
+}
+
+// ── Render closed ──────────────────────────────────────────────────────────
+function renderClosed() {
+  const s = state.closed;
+  let filtered = s.profile === "all" ? s.entries : s.entries.filter(e => e.profile === s.profile);
+  const sorted = sortEntries(filtered, s.sortCol, s.sortDir);
+
+  const table = document.getElementById("closed-table");
+  const empty = document.getElementById("closed-empty");
+  const tbody = document.getElementById("closed-tbody");
+
+  if (sorted.length === 0) {
+    table.style.display = "none"; empty.style.display = "";
+  } else {
+    empty.style.display = "none"; table.style.display = "";
+    tbody.innerHTML = sorted.map((e, i) => gpuRow(e, i + 1, e =>
+      `<td><span class="badge badge-${esc(e.profile)}">${esc(e.profile ?? "-")}</span></td>
+       <td>${esc(e.model_name ?? "-")}</td>`
+    )).join("");
+  }
+  updateSortIndicators("closed-table", s.sortCol, s.sortDir);
+}
+
+// ── Render open ────────────────────────────────────────────────────────────
+function renderOpen() {
+  const s = state.open;
+  let filtered = s.entries;
+  if (s.model   !== "all") filtered = filtered.filter(e => e.model_name === s.model);
+  if (s.profile !== "all") filtered = filtered.filter(e => e.profile    === s.profile);
+  const sorted = sortEntries(filtered, s.sortCol, s.sortDir);
+
+  const table = document.getElementById("open-table");
+  const empty = document.getElementById("open-empty");
+  const tbody = document.getElementById("open-tbody");
+
+  if (sorted.length === 0) {
+    table.style.display = "none"; empty.style.display = "";
+  } else {
+    empty.style.display = "none"; table.style.display = "";
+    tbody.innerHTML = sorted.map((e, i) => gpuRow(e, i + 1, e =>
+      `<td>${esc(e.model_name ?? "-")}</td>
+       <td><span class="badge badge-${esc(e.profile)}">${esc(e.profile ?? "-")}</span></td>`
+    )).join("");
+  }
+  updateSortIndicators("open-table", s.sortCol, s.sortDir);
+}
+
+// ── Build model filter pills for open tab ─────────────────────────────────
+function buildModelFilters(entries) {
+  const models = [...new Set(entries.map(e => e.model_name).filter(Boolean))].sort();
+  const container = document.getElementById("open-model-filters");
+  // keep label, rebuild buttons
+  const label = container.querySelector(".filter-label");
+  container.innerHTML = "";
+  container.appendChild(label);
+
+  const allBtn = document.createElement("button");
+  allBtn.className = "filter-btn active";
+  allBtn.textContent = "All";
+  allBtn.dataset.model = "all";
+  container.appendChild(allBtn);
+
+  models.forEach(m => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+    btn.textContent = m;
+    btn.dataset.model = m;
+    container.appendChild(btn);
+  });
+
+  container.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      container.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.open.model = btn.dataset.model;
+      renderOpen();
+    });
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    const res = await fetch("leaderboard.json?_=" + Date.now());
+    const res  = await fetch("leaderboard.json?_=" + Date.now());
     const data = await res.json();
 
-    document.getElementById("total").textContent = data.total_submissions ?? 0;
+    document.getElementById("total").textContent   = data.total_submissions ?? 0;
     document.getElementById("updated").textContent = data.updated_at
-      ? new Date(data.updated_at).toLocaleString()
-      : "never";
+      ? new Date(data.updated_at).toLocaleString() : "never";
 
-    allEntries = data.entries ?? [];
+    // Support both old (entries) and new (closed_entries) format
+    state.closed.entries = data.closed_entries ?? data.entries ?? [];
+    state.open.entries   = data.open_entries   ?? [];
+
     document.getElementById("loading").style.display = "none";
-    render();
+    document.getElementById("content").style.display = "";
+
+    buildModelFilters(state.open.entries);
+    renderClosed();
+    renderOpen();
   } catch (e) {
     document.getElementById("loading").textContent = "Failed to load leaderboard data.";
   }
 }
 
-function render() {
-  const filtered = activeProfile === "all"
-    ? allEntries
-    : allEntries.filter(e => e.profile === activeProfile);
-
-  const sorted = [...filtered].sort((a, b) => {
-    let av = a[sortCol], bv = b[sortCol];
-    if (typeof av === "string") av = av.toLowerCase();
-    if (typeof bv === "string") bv = bv.toLowerCase();
-    if (av == null) return 1;
-    if (bv == null) return -1;
-    if (av < bv) return sortDir === "asc" ? -1 : 1;
-    if (av > bv) return sortDir === "asc" ? 1 : -1;
-    return 0;
-  });
-
-  const tbody = document.getElementById("tbody");
-  const table = document.getElementById("table");
-  const empty = document.getElementById("empty");
-
-  if (sorted.length === 0) {
-    table.style.display = "none";
-    empty.style.display = "";
-    return;
-  }
-
-  empty.style.display = "none";
-  table.style.display = "";
-
-  tbody.innerHTML = sorted.map((e, i) => {
-    const rank = i + 1;
-    const rankClass = rank <= 3 ? ` rank-${rank}` : "";
-    const vendor = (e.gpu_vendor || "cpu").toLowerCase();
-    const tps = e.tokens_per_second != null ? e.tokens_per_second.toFixed(1) : "-";
-    const vram = e.vram_gb != null ? e.vram_gb.toFixed(0) + " GB" : "-";
-    const date = e.last_submitted_at ? new Date(e.last_submitted_at).toLocaleDateString() : "-";
-    return `<tr>
-      <td class="rank${rankClass}">${rank}</td>
-      <td>
-        <span class="badge badge-${vendor}">${vendor.toUpperCase()}</span>
-        ${escHtml(e.gpu_name ?? "-")}
-      </td>
-      <td>${vram}</td>
-      <td><span class="badge badge-${e.profile}">${escHtml(e.profile ?? "-")}</span></td>
-      <td>${escHtml(e.model_name ?? "-")}</td>
-      <td class="tps">${tps}</td>
-      <td>${escHtml(e.runtime ?? "-")}</td>
-      <td>${e.submission_count ?? 1}</td>
-      <td>${date}</td>
-    </tr>`;
-  }).join("");
-
-  // update sort indicators
-  document.querySelectorAll("thead th").forEach(th => {
-    th.classList.remove("sort-asc", "sort-desc");
-    if (th.dataset.col === sortCol) {
-      th.classList.add(sortDir === "asc" ? "sort-asc" : "sort-desc");
-    }
-  });
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
-document.querySelectorAll(".filter-btn").forEach(btn => {
+// ── Tab switching ──────────────────────────────────────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
-    activeProfile = btn.dataset.profile;
-    render();
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    state.activeTab = btn.dataset.tab;
   });
 });
 
-document.querySelectorAll("thead th[data-col]").forEach(th => {
+// ── Profile filter — closed ────────────────────────────────────────────────
+document.querySelectorAll("#closed-profile-filters .filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#closed-profile-filters .filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.closed.profile = btn.dataset.profile;
+    renderClosed();
+  });
+});
+
+// ── Profile filter — open ──────────────────────────────────────────────────
+document.querySelectorAll("#open-profile-filters .filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#open-profile-filters .filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.open.profile = btn.dataset.profile;
+    renderOpen();
+  });
+});
+
+// ── Column sort ────────────────────────────────────────────────────────────
+document.querySelectorAll("#closed-table thead th[data-col]").forEach(th => {
   th.addEventListener("click", () => {
-    if (sortCol === th.dataset.col) {
-      sortDir = sortDir === "desc" ? "asc" : "desc";
-    } else {
-      sortCol = th.dataset.col;
-      sortDir = th.dataset.col === "tokens_per_second" ? "desc" : "asc";
-    }
-    render();
+    const s = state.closed;
+    s.sortDir = s.sortCol === th.dataset.col && s.sortDir === "desc" ? "asc" : "desc";
+    s.sortCol = th.dataset.col;
+    renderClosed();
+  });
+});
+
+document.querySelectorAll("#open-table thead th[data-col]").forEach(th => {
+  th.addEventListener("click", () => {
+    const s = state.open;
+    s.sortDir = s.sortCol === th.dataset.col && s.sortDir === "desc" ? "asc" : "desc";
+    s.sortCol = th.dataset.col;
+    renderOpen();
   });
 });
 
