@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-05-15T11:46:22.421764+00:00",
+  "updated_at": "2026-05-15T13:26:58.035784+00:00",
   "total_submissions": 1,
-  "entries": [
+  "closed_entries": [
     {
       "gpu_name": "unknown",
       "gpu_chip": "unknown",
@@ -14,5 +14,6 @@
       "submission_count": 1,
       "last_submitted_at": "2026-05-14T21:12:55.170632+00:00"
     }
-  ]
+  ],
+  "open_entries": []
 }
